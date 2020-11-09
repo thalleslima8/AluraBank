@@ -1,7 +1,7 @@
 class NegociacoesView extends View<Negociacoes>{
 
     upDate(model: Negociacoes): void{
-        this._elemento.innerHTML = this.template(model);
+        this._elemento.html(this.template(model));
     }
 
     template(model: Negociacoes): string{

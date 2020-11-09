@@ -2,7 +2,7 @@ abstract class View<T>{
 
     protected _elemento: JQuery;
 
-    constructor(seletor: any){
+    constructor(seletor: string){
         
         this._elemento = $(seletor);
     }
