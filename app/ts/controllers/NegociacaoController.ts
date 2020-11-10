@@ -1,6 +1,6 @@
 import { Negociacoes, Negociacao } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
-
+import { DiaDaSemana } from '../enums/DiaDaSemana'
 
 
 export class NegociacaoController{
@@ -20,8 +20,16 @@ export class NegociacaoController{
 
     adiciona(event: Event){
         event.preventDefault();
+
+        let data = new Date(this.inputData.val().replace(/-/g,'/'));
+
+        if(!this._verificaDiaUtil(data)){
+            this._mensagemView.update('Negociações não podem ocorrer em finais de semana!');
+            return;
+        }
+
         const negociacao = new Negociacao(
-           new Date(this.inputData.val().replace(/-/g,'/')),
+           data,
            parseInt(this.inputQuantidade.val()),
            parseFloat(this.inputValor.val())
         )
@@ -30,4 +38,9 @@ export class NegociacaoController{
         this._negociacoesView.upDate(this._negociacoes);
         this._mensagemView.update('Negociação adicionada com sucesso!');
     }
+
+    private _verificaDiaUtil(data: Date){
+        return data.getDay() != DiaDaSemana.Domingo && data.getDay() != DiaDaSemana.Sabado;
+    }
 }
+
