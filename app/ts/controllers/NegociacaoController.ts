@@ -1,20 +1,23 @@
 import { Negociacoes, Negociacao } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
 import { DiaDaSemana } from '../enums/DiaDaSemana'
-
+import { logarTempoDeExecucao, domInject } from '../helpers/decorators/index'
 
 export class NegociacaoController{
+    @domInject('#data')
     private inputData: JQuery;
+    @domInject('#quantidade')
     private inputQuantidade: JQuery;
+    @domInject('#valor')
     private inputValor: JQuery;
     private _negociacoes = new Negociacoes();
     private _negociacoesView = new NegociacoesView('#negociacoesView');
     private _mensagemView = new MensagemView('#mensagemView');
 
     constructor(){
-        this.inputData = $('#data');
-        this.inputQuantidade = $('#quantidade');
-        this.inputValor = $('#valor');
+        // this.inputData = $('#data');
+        // this.inputQuantidade = $('#quantidade');
+        // this.inputValor = $('#valor');
         this._negociacoesView.upDate(this._negociacoes);
     }
 

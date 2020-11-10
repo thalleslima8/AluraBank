@@ -1,7 +1,10 @@
 import { Negociacao } from './Negociacao'
+import { logarTempoDeExecucao } from '../helpers/decorators/index'
+
 export class Negociacoes{
 
     private _negociacoes: Array<Negociacao> = []; //Negociacao[] = [];
+
 
     adiciona(negociacao: Negociacao): void{
         this._negociacoes.push(negociacao);
