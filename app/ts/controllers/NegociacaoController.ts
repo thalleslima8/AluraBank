@@ -1,7 +1,9 @@
-import { Negociacoes, Negociacao } from '../models/index';
+import { Negociacoes, Negociacao, NegociacaoParcial } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
 import { DiaDaSemana } from '../enums/DiaDaSemana'
-import { logarTempoDeExecucao, domInject } from '../helpers/decorators/index'
+import { logarTempoDeExecucao, domInject, throttle } from '../helpers/decorators/index'
+import { NegociacaoServices } from '../services/index'
+import { imprime } from '../helpers/index'
 
 export class NegociacaoController{
     @domInject('#data')
@@ -13,21 +15,19 @@ export class NegociacaoController{
     private _negociacoes = new Negociacoes();
     private _negociacoesView = new NegociacoesView('#negociacoesView');
     private _mensagemView = new MensagemView('#mensagemView');
+    private _negociacaoService = new NegociacaoServices();
 
     constructor(){
-        // this.inputData = $('#data');
-        // this.inputQuantidade = $('#quantidade');
-        // this.inputValor = $('#valor');
         this._negociacoesView.upDate(this._negociacoes);
     }
 
-    adiciona(event: Event){
-        event.preventDefault();
+    @throttle()
+    adiciona(){
 
         let data = new Date(this.inputData.val().replace(/-/g,'/'));
-
+        
         if(!this._verificaDiaUtil(data)){
-            this._mensagemView.update('Negociações não podem ocorrer em finais de semana!');
+            this._mensagemView.upDate('Negociações não podem ocorrer em finais de semana!');
             return;
         }
 
@@ -36,14 +36,42 @@ export class NegociacaoController{
            parseInt(this.inputQuantidade.val()),
            parseFloat(this.inputValor.val())
         )
+        
         this._negociacoes.adiciona(negociacao);
-
+        imprime(negociacao, this._negociacoes);
         this._negociacoesView.upDate(this._negociacoes);
-        this._mensagemView.update('Negociação adicionada com sucesso!');
+        this._mensagemView.upDate('Negociação adicionada com sucesso!');
     }
 
     private _verificaDiaUtil(data: Date){
         return data.getDay() != DiaDaSemana.Domingo && data.getDay() != DiaDaSemana.Sabado;
+    }
+
+    
+
+    @throttle()
+    importaDados(){
+        
+        this._negociacaoService
+            .obterNegociacoes(res => {
+                if(res.ok){
+                    return res;
+                }
+                throw new Error(res.statusText); 
+            })
+            .then(negociacoesImportadas =>{
+
+                const negociacoesJaImportadas = this._negociacoes.paraArray();
+
+                negociacoesImportadas
+                    .filter(negociacao => 
+                        !negociacoesJaImportadas.some(jaImportada => 
+                            negociacao.ehIgual(jaImportada)))
+                    .forEach(negociacao => 
+                        this._negociacoes.adiciona(negociacao));
+                this._negociacoesView.upDate(this._negociacoes);
+        });
+        
     }
 }
 
